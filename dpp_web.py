@@ -437,4 +437,12 @@ if __name__ == "__main__":
     else:
         print("DPP Search running at http://localhost:5000")
         print("Press Ctrl+C to stop.")
-        app.run(debug=False, port=5000)
+       port = int(os.environ.get("PORT", 5000))
+app.run(debug=False, host="0.0.0.0", port=port)
+```
+
+Save the file, then run:
+```
+git add dpp_web.py requirements.txt Procfile
+git commit -m "add railway config"
+git push
