@@ -385,7 +385,7 @@ def search():
             JOIN papers p ON c.paper_id = p.id
             WHERE chunks_fts MATCH ?
             ORDER BY rank
-            LIMIT 60
+            LIMIT 150
         """, (query,))
         rows = cur.fetchall()
 
@@ -396,7 +396,7 @@ def search():
             if title not in seen:
                 seen[title] = row
 
-        top = list(seen.values())[:10]
+        top = list(seen.values())[:25]
 
         # For each matched paper, count total mentions across all chunks
         terms = [t.strip('"') for t in query.split() if t not in ('AND','OR','NOT')]
