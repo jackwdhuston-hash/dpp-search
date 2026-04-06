@@ -567,7 +567,7 @@ HTML = """<!DOCTYPE html>
 
   /* ── Paper text ── */
   #reader-text-wrap {
-    flex: 1;
+    flex: 1 1 0;
     overflow-y: auto;
     padding: 2.5rem 3rem;
     min-width: 0;
@@ -596,8 +596,8 @@ HTML = """<!DOCTYPE html>
 
   /* ── Annotations sidebar ── */
   #annotations-pane {
-    width: 300px;
-    flex-shrink: 0;
+    flex: 1 1 0;
+    min-width: 0;
     overflow-y: auto;
     background: #fafaf8;
     display: flex;
@@ -643,13 +643,15 @@ HTML = """<!DOCTYPE html>
   .annotation-card.active { border-color: #1565c0; }
 
   .annot-quote-block {
-    font-size: 11.5px;
-    color: #999;
-    border-left: 2px solid rgba(249, 168, 37, 0.8);
-    padding-left: 8px;
-    margin-bottom: 8px;
-    line-height: 1.5;
+    font-size: 12.5px;
+    color: #333;
+    background: rgba(249, 168, 37, 0.13);
+    border-left: 3px solid #f9a825;
+    padding: 6px 10px;
+    margin-bottom: 9px;
+    line-height: 1.6;
     font-style: italic;
+    border-radius: 0 4px 4px 0;
   }
 
   .annot-author-name {
@@ -1098,7 +1100,7 @@ function renderSidebar() {
       </div>`).join('');
 
     const replyFormHtml = isActive ? `
-      <div class="reply-form">
+      <div class="reply-form" onclick="event.stopPropagation()">
         <input type="text" id="ra-${a.id}" placeholder="Your name" value="${esc(getSavedName())}" />
         <textarea id="rt-${a.id}" placeholder="Reply…"
           onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))submitReply(event,${a.id})"></textarea>
@@ -1158,6 +1160,8 @@ document.addEventListener('mouseup', function(e) {
   setTimeout(() => {
     const sel  = window.getSelection();
     const text = sel ? sel.toString().trim() : '';
+    const popover = document.getElementById('annotate-popover');
+    if (popover.style.display !== 'none') return; // popover is open; don't interfere
     if (text.length < 5) { hideAnnotatePopover(); return; }
     try {
       const rect = sel.getRangeAt(0).getBoundingClientRect();
