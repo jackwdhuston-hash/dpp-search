@@ -482,6 +482,15 @@ HTML = """<!DOCTYPE html>
   }
   .snippet mark { background: #fff3a3; color: inherit; border-radius: 2px; padding: 0 1px; }
 
+  mark.search-hit {
+    background: #fff3a3;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+    outline: 1.5px solid #f9a825;
+    outline-offset: 1px;
+  }
+
   .no-results { text-align: center; color: #bbb; padding: 3rem 0; font-size: 14px; }
 
   /* ── Reader pane ── */
@@ -857,11 +866,12 @@ HTML = """<!DOCTYPE html>
 
 <script>
 // ── State ──────────────────────────────────────────────────────────────────
-let currentPaperId    = null;
+let currentPaperId     = null;
 let currentAnnotations = [];
 let activeAnnotationId = null;
 let pendingSelectedText = '';
 let activeReadBtn      = null;
+let currentSearchTerms = [];
 
 // ── Utilities ──────────────────────────────────────────────────────────────
 function esc(text) {
@@ -930,6 +940,8 @@ async function doSearch() {
     const terms = q.split(/\\s+/)
       .map(t => t.replace(/^"|"$/g, ''))
       .filter(t => !['AND','OR','NOT'].includes(t) && t.length > 1);
+
+    currentSearchTerms = terms;
 
     setStatus(`<strong>${data.results.length}</strong> paper${data.results.length !== 1 ? 's' : ''} found`);
 
@@ -1009,6 +1021,23 @@ async function openReader(paperId, title, author, btn) {
   document.getElementById('reader-text').innerHTML = paragraphs || '<p>No text available.</p>';
 
   await loadAnnotations(paperId);
+  applySearchHighlights();
+}
+
+function applySearchHighlights() {
+  if (!currentSearchTerms.length) return;
+  const textEl = document.getElementById('reader-text');
+  let html = textEl.innerHTML;
+  // Highlight each term, skipping text inside HTML tags
+  for (const term of currentSearchTerms) {
+    if (!term || term.length < 2) continue;
+    const re = new RegExp('(?![^<]*>)(' + escapeRe(term) + ')', 'gi');
+    html = html.replace(re, '<mark class="search-hit">$1</mark>');
+  }
+  textEl.innerHTML = html;
+  // Scroll to first hit
+  const first = textEl.querySelector('.search-hit');
+  if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 function closeReader() {
