@@ -652,6 +652,10 @@ HTML = """<!DOCTYPE html>
     line-height: 1.6;
     font-style: italic;
     border-radius: 0 4px 4px 0;
+    max-height: calc(1.6em * 7 + 12px);
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
   }
 
   .annot-author-name {
@@ -1090,7 +1094,7 @@ function renderSidebar() {
 
   list.innerHTML = currentAnnotations.map(a => {
     const isActive    = a.id === activeAnnotationId;
-    const quotePreview = a.selected_text.length > 110 ? a.selected_text.slice(0, 110) + '…' : a.selected_text;
+    const quotePreview = a.selected_text.length > 700 ? a.selected_text.slice(0, 700) + '…' : a.selected_text;
 
     const repliesHtml = a.replies.map(r => `
       <div class="reply-item">
