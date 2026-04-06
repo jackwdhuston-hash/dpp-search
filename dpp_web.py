@@ -939,8 +939,8 @@ async function doSearch() {
       const badgeLabel  = r.count === 1 ? '1 mention' : `${r.count} mentions`;
       const annotBadge  = r.annotation_count > 0
         ? `<span class="annot-badge">${r.annotation_count} note${r.annotation_count !== 1 ? 's' : ''}</span>` : '';
-      const titleJ  = JSON.stringify(r.title);
-      const authorJ = JSON.stringify(r.author);
+      const safeTitle  = r.title.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      const safeAuthor = r.author.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
 
       return `<div class="result" id="result-${r.paper_id}">
         <div class="result-header">
@@ -949,7 +949,8 @@ async function doSearch() {
             <span class="${badgeClass}">${badgeLabel}</span>
             ${annotBadge}
             <button class="read-btn" id="read-btn-${r.paper_id}"
-              onclick="openReader(${r.paper_id}, ${titleJ}, ${authorJ}, this)">Read</button>
+              data-pid="${r.paper_id}" data-title="${safeTitle}" data-author="${safeAuthor}"
+              onclick="openReaderFromBtn(this)">Read</button>
             <a class="open-btn" href="${r.pdf_url}" target="_blank">PDF ↗</a>
           </div>
         </div>
@@ -971,6 +972,10 @@ async function doSearch() {
 }
 
 // ── Reader ─────────────────────────────────────────────────────────────────
+function openReaderFromBtn(btn) {
+  openReader(parseInt(btn.dataset.pid), btn.dataset.title, btn.dataset.author, btn);
+}
+
 async function openReader(paperId, title, author, btn) {
   currentPaperId     = paperId;
   currentAnnotations = [];
